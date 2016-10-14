@@ -1,0 +1,8 @@
+version: "2"
+services:
+  thor:
+    build:
+      context: ..
+      dockerfile: ./dockerfiles/thor.dockerfile
+    volumes:
+      - ..:/storj-meta
