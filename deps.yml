@@ -1,0 +1,21 @@
+billing:
+  - core
+  - service-middleware
+  - service-storage-models
+#  {billing: ['core', 'service-middleware', ...]}
+
+bridge:
+  - core
+  - service-middleware
+  - service-storage-models
+
+bridge-gui:
+  - core
+  - bridge
+  - billing
+
+service-storage-models:
+  - core
+
+service-middlware:
+  - service-error-types
