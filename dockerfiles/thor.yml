@@ -1,6 +1,7 @@
 version: "2"
 services:
   thor:
+    image: devops:thor
     build:
       context: ..
       dockerfile: ./dockerfiles/thor.dockerfile

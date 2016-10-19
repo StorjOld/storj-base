@@ -24,13 +24,14 @@ run: ensure_devops_base
 	fi \
 
 ensure_devops_base:
-	if ! docker images |grep -q devops-base; then \
-		docker build -t devops-base -f dockerfiles/devops-base.dockerfile .; \
+	if ! docker images |grep -q devops.*base; then \
+		docker build -t devops:base -f dockerfiles/devops-base.dockerfile .; \
 	fi
 
 ensure_thor: ensure_devops_base
-	if ! docker images |grep -q dockerfiles_thor; then \
+	if ! docker images |grep -q devops.*thor; then \
 		docker-compose -f dockerfiles/thor.yml build thor; \
+		docker tag devops:thor devops:base; \
 	fi
 
 %:

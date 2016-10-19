@@ -31,5 +31,3 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
   && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
 ### END NODE INSTALL
-
-RUN git clone https://github.com/Storj/storj-base --depth=1 /storj-base
