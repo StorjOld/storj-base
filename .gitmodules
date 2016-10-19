@@ -19,3 +19,6 @@
 [submodule "bridge-gui"]
 	path = bridge-gui
 	url = https://github.com/Storj/bridge-gui.git
+[submodule "complex"]
+	path = complex
+	url = git@github.com:Storj/complex.git
