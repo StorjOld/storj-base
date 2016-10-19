@@ -7,4 +7,4 @@ source "https://rubygems.org"
 # end
 
 gem 'thor', group: [:development, :test]
-# gem 'pry', group: :development
+gem 'pry', group: :development
