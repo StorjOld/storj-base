@@ -5,4 +5,4 @@ services:
       context: ..
       dockerfile: ./dockerfiles/thor.dockerfile
     volumes:
-      - ..:/storj-meta
+      - ..:/storj-base

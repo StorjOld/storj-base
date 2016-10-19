@@ -1,8 +1,8 @@
-FROM ruby
+FROM devops-base
 
-ADD ./Gemfile /storj-meta/Gemfile
-#ADD ./Gemfile.lock /storj-meta/Gemfile.lock
+ADD ./Gemfile /storj-base/Gemfile
+ADD ./Gemfile.lock /storj-base/Gemfile.lock
 
-WORKDIR /storj-meta
+WORKDIR /storj-base
 
 RUN bundle install
