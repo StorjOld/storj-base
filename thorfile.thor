@@ -1,11 +1,13 @@
 require 'rubygems'
 require 'bundler/setup'
 
+require 'active_support/core_ext/object/try'
 require 'thor'
 require 'date'
 require 'open3'
 require 'erb'
-require 'yaml'
+require 'json'
+# require 'yaml'
 
 # db_config_file = File.open("#{__dir__}/db/mongoid.yml")
 # db_config_string_template = db_config_file.read
