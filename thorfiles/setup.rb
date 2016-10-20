@@ -9,14 +9,15 @@ class Setup < ThorBase
 
   def submodule(repo_name, github_username)
     unless git_inited? repo_name
-      init_and_update repo_name
-      set_remotes repo_name, github_username
+      git_init_and_update repo_name
+      git_set_remotes repo_name, github_username
     end
     package_json_path = "#{WORKDIR}/#{repo_name}/package.json"
     if File.file? package_json_path
       deps_file = File.open package_json_path
       deps_string = deps_file.read
-      devops_property = JSON.parse(deps_string)['devopsBase']
+      @npm_package = JSON.parse(deps_string)
+      devops_property = @npm_package['devopsBase']
 
       if !devops_property.nil?
         repo_deps = devops_property['npmLinkDeps']
@@ -26,7 +27,7 @@ class Setup < ThorBase
           refspec ||= npm_version npm_name
           git_init_and_update git_name
           git_set_remotes git_name, github_username
-          git_checkout git_name, refspec
+          git_checkout git_name, "v#{refspec}"
         end
       else
         print "No local dependencies found in package.json at: #{package_json_path}\n"
@@ -73,8 +74,8 @@ class Setup < ThorBase
   end
 
   def git_set_remotes(repo_name, github_username)
-    run "git remote set-url origin git@github.com:#{github_username}/#{repo_name}.git"
-    run "git remote add storj git@github.com:Storj/#{repo_name}.git"
+    run "cd #{repo_name} && git remote set-url origin git@github.com:#{github_username}/#{repo_name}.git"
+    run "cd #{repo_name} && git remote add storj git@github.com:Storj/#{repo_name}.git"
   end
 
   def git_checkout(repo_name, refspec)
