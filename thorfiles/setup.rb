@@ -2,6 +2,13 @@ class Setup < ThorBase
   include Thor::Actions
   include Open3
 
+  def initialize(*args)
+    super
+    @npm_linked = []
+    @git_cloned = {}
+    @git_checked_out = {}
+  end
+
   desc 'submodule <project name> <github_username>',
        'looks for "devopsBase" property in package.json and uses git ' +
            'submodule and checkout to ensure specified repo is setup ' +
@@ -12,28 +19,16 @@ class Setup < ThorBase
       git_init_and_update repo_name
       git_set_remotes repo_name, github_username
     end
-    package_json_path = "#{WORKDIR}/#{repo_name}/package.json"
-    if File.file? package_json_path
-      deps_file = File.open package_json_path
-      deps_string = deps_file.read
-      @npm_package = JSON.parse(deps_string)
-      devops_property = @npm_package['devopsBase']
 
-      if !devops_property.nil?
-        repo_deps = devops_property['npmLinkDeps']
-        p "Initializing deps: #{repo_deps.values.join ', '}"
-        repo_deps.each do |npm_name, git_name|
-          git_name, refspec = git_name.split('@')
-          refspec ||= npm_version npm_name
-          git_init_and_update git_name
-          git_set_remotes git_name, github_username
-          git_checkout git_name, "v#{refspec}"
-        end
-      else
-        print "No local dependencies found in package.json at: #{package_json_path}\n"
-      end
-    else
-      print "Coudn't find a package.json file at: #{package_json_path}\n"
+    package_path = "#{WORKDIR}/#{repo_name}"
+    parse_deps package_path,
+               "#{WORKDIR}/?" do |git_name, refspec, npm_refspec|
+      git_init_and_update git_name
+      # TODO: maybe set a temp https remote to ensure fetch works
+      git_fetch_tags git_name
+      git_set_remotes git_name, github_username
+      git_checkout git_name, refspec, npm_refspec
+      npm_link git_name
     end
   end
 
@@ -43,19 +38,50 @@ class Setup < ThorBase
            'compatible version in npm)'
 
   def clone(docker_project_root)
-    package_json = File.open "#{docker_project_root}/package.json"
-    package_json_string = package_json.read
-
-    @npm_package = JSON.parse(package_json_string)
-    npm_link_deps = @npm_package['devopsBase']['npmLinkDeps']
-    npm_link_deps.each do |npm_name, git_name|
-      git_name, refspec = git_name.split('@')
-      refspec ||= "v#{npm_version npm_name}"
-      git_clone git_name, refspec
+    parse_deps docker_project_root,
+               '/storj-base/?' do |git_name, refspec, npm_refspec|
+      git_clone git_name, refspec, npm_refspec
+      npm_link "/storj-base/#{git_name}"
     end
   end
 
   private
+
+  def parse_deps(package_path, package_path_template, repo_name = nil, &block)
+    if package_path.nil? && repo_name && package_path_template
+      package_path = package_path_template.sub /\?/, repo_name
+    end
+
+    package_json_path = package_path + '/package.json'
+
+    if File.file? package_json_path
+      deps_file = File.open package_json_path
+      @npm_package = JSON.parse(deps_file.read)
+      devops_property = @npm_package['devopsBase']
+
+      if !devops_property.nil?
+        repo_deps = devops_property['npmLinkDeps']
+        p "Initializing deps: #{repo_deps.values.join ', '}"
+        repo_deps.each do |npm_name, git_name|
+          git_name, refspec = git_name.split('@')
+          npm_version_string = "v#{npm_version npm_name}"
+          refspec ||= npm_version_string
+
+          unless git_name == repo_name
+            yield git_name, refspec, refspec == npm_version_string
+
+            npm_link_dep package_path, npm_name
+
+            parse_deps nil, package_path_template, git_name, &block
+          end
+        end
+      else
+        print "No local dependencies found in package.json at: #{package_path}\n"
+      end
+    else
+      print "Coudn't find a package.json file at: #{package_path}\n"
+    end
+  end
 
   def git_inited?(repo_name)
     popen2e 'git submodule status' do |stdin, stdout_stderr, wait_thread|
@@ -78,12 +104,41 @@ class Setup < ThorBase
     run "cd #{repo_name} && git remote add storj git@github.com:Storj/#{repo_name}.git"
   end
 
-  def git_checkout(repo_name, refspec)
-    run "cd #{repo_name} && git checkout #{refspec}"
+  def git_checkout(repo_name, refspec, npm_refspec)
+    if npm_refspec && !@git_checked_out.keys.include?(repo_name)
+      run "cd #{repo_name} && git checkout #{refspec}"
+      @git_checked_out[repo_name] = refspec
+    else
+      p "Didn't checkout #{repo_name}, already checked out to #{@git_cloned[repo_name]}"
+    end
   end
 
-  def git_clone(repo_name, refspec)
-    run "git clone --depth=1 --single-branch -b #{refspec} https://github.com/Storj/#{repo_name}"
+  def git_clone(repo_name, refspec, npm_refspec)
+    p "@git_cloned: #{@git_cloned}"
+    p "@git_cloned class: #{@git_cloned.class}"
+    if npm_refspec && !@git_cloned.keys.include?(repo_name)
+      run "cd /storj-base && git clone --depth=1 --single-branch -b #{refspec} https://github.com/Storj/#{repo_name}"
+      @git_cloned[repo_name] = refspec
+    else
+      p "Didn't clone #{repo_name}, already cloned to #{@git_cloned[repo_name]}"
+    end
+  end
+
+  def git_fetch_tags(repo_name)
+    run "cd #{repo_name} && git fetch --tags origin"
+  end
+
+  def npm_link(module_path)
+    if !@npm_linked.include? module_path
+      run "cd #{module_path} && npm link"
+      @npm_linked << module_path
+    else
+      p "Package at #{module_path} already linked!"
+    end
+  end
+
+  def npm_link_dep(dependant_path, npm_dep_name)
+    run "cd #{dependant_path} && npm link #{npm_dep_name}"
   end
 
   def npm_version(npm_dep_name)
@@ -92,8 +147,9 @@ class Setup < ThorBase
     popen2e "npm view #{desired} version" do |stdin, stdout_stderr, wait_thread|
       npm_view = stdout_stderr.read.strip
 
+      print "npm view: #{npm_view}\n"
       matches = npm_view.split("\n").map do |line|
-        line.match(/.*'(?<version>.+)'$/).try :[], :version
+        line.match(/(?:.*')?(?<version>[\d\.]+)'?$/).try :[], :version
       end.compact
 
       if matches.empty?
