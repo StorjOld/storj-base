@@ -1,7 +1,7 @@
 version: "2"
 services:
   thor:
-    image: devops:thor
+    image: storjlabs/storj:thor
     build:
       context: ..
       dockerfile: ./dockerfiles/thor.dockerfile
