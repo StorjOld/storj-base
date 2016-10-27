@@ -29,9 +29,8 @@ ensure_devops_base:
 	fi
 
 ensure_thor: ensure_devops_base
-	if ! docker images |grep -q devops.*thor; then \
+	if ! docker images |grep -q storjlabs/storj.*thor; then \
 		docker-compose -f dockerfiles/thor.yml build thor; \
-		docker tag devops:thor devops:base; \
 	fi
 
 %:

@@ -1,4 +1,4 @@
-FROM devops:base
+FROM storjlabs/storj:base
 
 RUN apt-get update && apt install -y vim-tiny curl
 
