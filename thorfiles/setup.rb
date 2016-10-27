@@ -25,10 +25,11 @@ class Setup < ThorBase
                "#{WORKDIR}/?" do |git_name, refspec, npm_refspec|
       git_init_and_update git_name
       # TODO: maybe set a temp https remote to ensure fetch works
-      git_fetch_tags git_name
       git_set_remotes git_name, github_username
+      git_fetch_tags git_name
       git_checkout git_name, refspec, npm_refspec
       npm_link git_name
+      git_clean_remotes git_name
     end
   end
 
@@ -56,16 +57,21 @@ class Setup < ThorBase
 
     if File.file? package_json_path
       deps_file = File.open package_json_path
-      @npm_package = JSON.parse(deps_file.read)
-      devops_property = @npm_package['devopsBase']
+      npm_package = JSON.parse(deps_file.read)
+      devops_property = npm_package['devopsBase']
 
       if !devops_property.nil?
         repo_deps = devops_property['npmLinkDeps']
         p "Initializing deps: #{repo_deps.values.join ', '}"
         repo_deps.each do |npm_name, git_name|
+          p "git_name: #{git_name}"
+          p "git_name split: #{git_name.split('@')}"
           git_name, refspec = git_name.split('@')
-          npm_version_string = "v#{npm_version npm_name}"
+          p "refspec: #{refspec}"
+          npm_version_string = "v#{npm_version npm_package, npm_name}"
+          p "npm_version_string: #{npm_version_string}"
           refspec ||= npm_version_string
+          p "post refspec: #{refspec}"
 
           unless git_name == repo_name
             yield git_name, refspec, refspec == npm_version_string
@@ -100,8 +106,13 @@ class Setup < ThorBase
   end
 
   def git_set_remotes(repo_name, github_username)
+    run "cd #{repo_name} && git remote add _temp https://github.com/Storj/#{repo_name}"
     run "cd #{repo_name} && git remote set-url origin git@github.com:#{github_username}/#{repo_name}.git"
     run "cd #{repo_name} && git remote add storj git@github.com:Storj/#{repo_name}.git"
+  end
+
+  def git_clean_remotes(repo_name)
+    run "cd #{repo_name} && git remote remove _temp"
   end
 
   def git_checkout(repo_name, refspec, npm_refspec)
@@ -109,7 +120,7 @@ class Setup < ThorBase
       run "cd #{repo_name} && git checkout #{refspec}"
       @git_checked_out[repo_name] = refspec
     else
-      p "Didn't checkout #{repo_name}, already checked out to #{@git_cloned[repo_name]}"
+      p "Didn't checkout #{repo_name}, already checked out to #{@git_checked_out[repo_name]}"
     end
   end
 
@@ -125,12 +136,13 @@ class Setup < ThorBase
   end
 
   def git_fetch_tags(repo_name)
-    run "cd #{repo_name} && git fetch --tags origin"
+    run "cd #{repo_name} && git fetch --tags _temp"
   end
 
   def npm_link(module_path)
     if !@npm_linked.include? module_path
-      run "cd #{module_path} && npm link"
+      p "linking #{module_path}"
+      # run "cd #{module_path} && npm link"
       @npm_linked << module_path
     else
       p "Package at #{module_path} already linked!"
@@ -138,28 +150,33 @@ class Setup < ThorBase
   end
 
   def npm_link_dep(dependant_path, npm_dep_name)
-    run "cd #{dependant_path} && npm link #{npm_dep_name}"
+    # run "cd #{dependant_path} && npm link #{npm_dep_name}"
+    p "linking #{npm_dep_name} from #{dependant_path}"
   end
 
-  def npm_version(npm_dep_name)
-    npm_version_spec = @npm_package['dependencies'][npm_dep_name]
-    desired = "#{npm_dep_name}@#{npm_version_spec}"
-    popen2e "npm view #{desired} version" do |stdin, stdout_stderr, wait_thread|
-      npm_view = stdout_stderr.read.strip
+  def npm_version(npm_package, npm_dep_name)
+    if npm_package
+      npm_version_spec = npm_package['dependencies'][npm_dep_name]
+      desired = "#{npm_dep_name}@#{npm_version_spec}"
+      popen2e "npm view #{desired} version" do |stdin, stdout_stderr, wait_thread|
+        npm_view = stdout_stderr.read.strip
 
-      print "npm view: #{npm_view}\n"
-      matches = npm_view.split("\n").map do |line|
-        line.match(/(?:.*')?(?<version>[\d\.]+)'?$/).try :[], :version
-      end.compact
+        print "npm view: #{npm_view}\n"
+        matches = npm_view.split("\n").map do |line|
+          line.match(/(?:.*')?(?<version>[\d\.]+)'?$/).try :[], :version
+        end.compact
 
-      if matches.empty?
-        throw "No compatible npm version found for: #{desired}"
+        if matches.empty?
+          throw "No compatible npm version found for: #{desired}"
+        end
+
+        result = matches[-1]
+        p "Highest compatible npm version: #{npm_dep_name}@#{result}"
+
+        result
       end
-
-      result = matches[-1]
-      p "Highest compatible npm version: #{npm_dep_name}@#{result}"
-
-      result
+    else
+      return p "Couldn't look up npm version: no npm package.json available"
     end
   end
 end
