@@ -64,14 +64,14 @@ class Setup < ThorBase
         repo_deps = devops_property['npmLinkDeps']
         p "Initializing deps: #{repo_deps.values.join ', '}"
         repo_deps.each do |npm_name, git_name|
-          p "git_name: #{git_name}"
-          p "git_name split: #{git_name.split('@')}"
+          # p "git_name: #{git_name}"
+          # p "git_name split: #{git_name.split('@')}"
           git_name, refspec = git_name.split('@')
-          p "refspec: #{refspec}"
+          # p "refspec: #{refspec}"
           npm_version_string = "v#{npm_version npm_package, npm_name}"
-          p "npm_version_string: #{npm_version_string}"
+          # p "npm_version_string: #{npm_version_string}"
           refspec ||= npm_version_string
-          p "post refspec: #{refspec}"
+          # p "post refspec: #{refspec}"
 
           unless git_name == repo_name
             yield git_name, refspec, refspec == npm_version_string
@@ -125,8 +125,8 @@ class Setup < ThorBase
   end
 
   def git_clone(repo_name, refspec, npm_refspec)
-    p "@git_cloned: #{@git_cloned}"
-    p "@git_cloned class: #{@git_cloned.class}"
+    # p "@git_cloned: #{@git_cloned}"
+    # p "@git_cloned class: #{@git_cloned.class}"
     if npm_refspec && !@git_cloned.keys.include?(repo_name)
       run "cd /storj-base && git clone --depth=1 --single-branch -b #{refspec} https://github.com/Storj/#{repo_name}"
       @git_cloned[repo_name] = refspec
@@ -141,8 +141,8 @@ class Setup < ThorBase
 
   def npm_link(module_path)
     if !@npm_linked.include? module_path
-      p "linking #{module_path}"
-      # run "cd #{module_path} && npm link"
+      p "linking: #{module_path}"
+      run "cd #{module_path} && npm link"
       @npm_linked << module_path
     else
       p "Package at #{module_path} already linked!"
@@ -150,8 +150,8 @@ class Setup < ThorBase
   end
 
   def npm_link_dep(dependant_path, npm_dep_name)
-    # run "cd #{dependant_path} && npm link #{npm_dep_name}"
     p "linking #{npm_dep_name} from #{dependant_path}"
+    run "cd #{dependant_path} && npm link #{npm_dep_name}"
   end
 
   def npm_version(npm_package, npm_dep_name)
@@ -176,7 +176,7 @@ class Setup < ThorBase
         result
       end
     else
-      return p "Couldn't look up npm version: no npm package.json available"
+      p "Couldn't look up npm version: no npm package.json available"
     end
   end
 end
