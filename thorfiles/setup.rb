@@ -27,7 +27,7 @@ class Setup < ThorBase
       # TODO: maybe set a temp https remote to ensure fetch works
       git_set_remotes git_name, github_username
       git_fetch_tags git_name
-      git_checkout git_name, refspec, npm_refspec
+      git_checkout git_name, refspec
       npm_link git_name
       git_clean_remotes git_name
     end
@@ -41,7 +41,7 @@ class Setup < ThorBase
   def clone(docker_project_root)
     parse_deps docker_project_root,
                '/storj-base/?' do |git_name, refspec, npm_refspec|
-      git_clone git_name, refspec, npm_refspec
+      git_clone git_name, refspec
       npm_link "/storj-base/#{git_name}"
     end
   end
@@ -115,8 +115,8 @@ class Setup < ThorBase
     run "cd #{repo_name} && git remote remove _temp"
   end
 
-  def git_checkout(repo_name, refspec, npm_refspec)
-    if npm_refspec && !@git_checked_out.keys.include?(repo_name)
+  def git_checkout(repo_name, refspec)
+    if @git_ckecked_out[repo_name] != refspec
       run "cd #{repo_name} && git checkout #{refspec}"
       @git_checked_out[repo_name] = refspec
     else
@@ -124,11 +124,15 @@ class Setup < ThorBase
     end
   end
 
-  def git_clone(repo_name, refspec, npm_refspec)
+  def git_clone(repo_name, refspec)
     # p "@git_cloned: #{@git_cloned}"
     # p "@git_cloned class: #{@git_cloned.class}"
-    if npm_refspec && !@git_cloned.keys.include?(repo_name)
-      run "cd /storj-base && git clone --depth=1 --single-branch -b #{refspec} https://github.com/Storj/#{repo_name}"
+    if @git_cloned[repo_name] != refspec
+      if @git_cloned[repo_name]
+        run "rm -rf /storj-base/#{repo_name}"
+        @npm_linked.reject! {|module_path| module_path =~ /#{repo_name}$/}
+      end
+      run "git clone --depth=1 --single-branch -b #{refspec} https://github.com/Storj/#{repo_name} /storj-base/#{repo_name}"
       @git_cloned[repo_name] = refspec
     else
       p "Didn't clone #{repo_name}, already cloned to #{@git_cloned[repo_name]}"
