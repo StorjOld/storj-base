@@ -20,7 +20,7 @@ longdesc:
 
 run:
 	$(MAKE) build ensure_thor
-	docker run --rm -it devops:thor pry;
+	docker run --rm -it storjlabs/storj:thor pry;
 
 %:
 	:
