@@ -116,7 +116,7 @@ class Setup < ThorBase
   end
 
   def git_checkout(repo_name, refspec)
-    if @git_ckecked_out[repo_name] != refspec
+    if @git_checked_out[repo_name] != refspec
       run "cd #{repo_name} && git checkout #{refspec}"
       @git_checked_out[repo_name] = refspec
     else
