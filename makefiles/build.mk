@@ -24,13 +24,13 @@ run: ensure_devops_base
 	fi \
 
 ensure_devops_base:
-	if ! docker images |grep -q devops.*base; then \
-		docker build -t devops:base -f dockerfiles/devops-base.dockerfile .; \
+	if ! docker images |grep -q storj.*base; then \
+		docker build -t storj:base -f dockerfiles/storj-base.dockerfile .; \
 	fi
 
 ensure_thor: ensure_devops_base
 	if ! docker images |grep -q storjlabs/storj.*thor; then \
-		docker-compose -f dockerfiles/thor.yml build thor; \
+		docker-compose -f dockerfiles/thor.yml -t storjlabs/storj:base build thor; \
 	fi
 
 %:

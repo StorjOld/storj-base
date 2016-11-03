@@ -1,0 +1,10 @@
+version: 2
+services:
+  billing:
+    build:
+      context: ../../
+      dockerfile: ./dockerfiles/billing/billing-development.dockerfile
+    volumes:
+      - ../../billing:/billing
+    environment:
+      - STAGE=development

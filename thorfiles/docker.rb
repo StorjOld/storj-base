@@ -17,15 +17,11 @@ class Docker < ThorBase
   end
 
   desc 'build [env]', 'builds a docker container for the given environment (defaults to production)'
-
-  def build(env = 'production')
+  method_option :env, default: :development, aliases: :e
+  method_option :tag, aliases: :t, default: :latest
+  def build(service)
     @env = env
-
-    popen2e "docker-compose -f dockerfiles/#{env}.yml build", chdir: PROJECT_DIR do |stdin, stdout_stderr, wait_thread|
-      while line = stdout_stderr.gets do
-        print line
-      end
-    end
+    run "docker-compose -t storjlabs/#{service}:#{tag} -f dockerfiles/#{service}-#{env}.yml build", chdir: PROJECT_DIR
   end
 
   private

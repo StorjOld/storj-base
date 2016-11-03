@@ -14,23 +14,27 @@ class Setup < ThorBase
            'submodule and checkout to ensure specified repo is setup ' +
            'and npm linked'
 
-  def submodule(repo_name, github_username)
-    unless git_inited? repo_name
-      git_init_and_update repo_name
-      git_set_remotes repo_name, github_username
-    end
+  def submodule(repo_name, tag = 'latest')
+    #unless git_inited? repo_name
+    #  git_init_and_update repo_name
+    #  git_set_remotes repo_name, github_username
+    #end
 
-    package_path = "#{WORKDIR}/#{repo_name}"
-    parse_deps package_path,
-               "#{WORKDIR}/?" do |git_name, refspec, npm_refspec|
-      git_init_and_update git_name
-      # TODO: maybe set a temp https remote to ensure fetch works
-      git_set_remotes git_name, github_username
-      git_fetch_tags git_name
-      git_checkout git_name, refspec
-      npm_link git_name
-      git_clean_remotes git_name
-    end
+    #package_path = "#{WORKDIR}/#{repo_name}"
+    #parse_deps package_path,
+    #           "#{WORKDIR}/?" do |git_name, refspec, npm_refspec|
+    #  git_init_and_update git_name
+    #  # TODO: maybe set a temp https remote to ensure fetch works
+    #  git_set_remotes git_name, github_username
+    #  git_fetch_tags git_name
+    #  git_checkout git_name, refspec
+    #  npm_link git_name
+    #  git_clean_remotes git_name
+    #end
+    submodules.each &method(:init_and_update)
+    invoke :'docker:build', :base, tag
+    invoke :'docker:build', :storjmodules, tag
+    invoke :'docker:build', repo_name, tag
   end
 
   desc 'clone <docker_project_root>',
@@ -46,7 +50,53 @@ class Setup < ThorBase
     end
   end
 
+  desc 'npm_install_storj', 'npm installs storj modules'
+
+  def npm_install_storj
+    submodules.each do |submodule|
+      run "cp #{WORKDIR}/#{submodule}/package.json #{WORKDIR}/package.json"
+      run 'npm install'
+    end
+  end
+
+  desc 'npm_link_storj', 'npm links storj modules'
+
+  def npm_link_storj
+    submodules.each do |submodule|
+      run "cd #{submodule} && npm link"
+      package = parse_package_json submodule
+      package.each do |name, version|
+        if /^storj-/.match name
+          run "npm link #{name}"
+        end
+      end
+    end
+  end
+
+  desc 'npm_install_base', 'installs npm base modules for storj'
+
+  def npm_install_base
+    npm_install_storj
+    submodules.each do |submodule|
+      package = parse_package_json
+      run "rm -rf #{WORKDIR}/node_modules/#{package['name']}"
+    end
+  end
+
   private
+
+  def parse_package_json(path)
+    JSON.parse File.open("#{WORKDIR}/#{path ? path+/ : ''}package.json").read
+  end
+
+  def submodules
+    return if @submodules.present?
+    popen2e 'git submodule' do |stdin, stdout_stderr, wait_thread|
+      @submodules = stdout_stderr.read.split("\n").map do |line|
+        /.\w+\s(\w+)/.match(line)[1]
+      end
+    end
+  end
 
   def parse_deps(package_path, package_path_template, repo_name = nil, &block)
     if package_path.nil? && repo_name && package_path_template

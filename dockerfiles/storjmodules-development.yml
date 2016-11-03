@@ -1,0 +1,10 @@
+version: 2
+services:
+  base-service:
+    build:
+      context: ..
+      dockerfile: ./dockerfiles/storjmodules-development.dockerfile
+    volumes:
+      - ..:/storj-base
+    environment:
+      - STAGE=development
