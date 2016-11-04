@@ -1,0 +1,9 @@
+[submodule "service-middleware"]
+	path = service-middleware
+	url = https://github.com/Storj/service-middleware
+[submodule "mongodb-adapter"]
+	path = mongodb-adapter
+	url = https://github.com/Storj/mongodb-adapter
+[submodule "billing"]
+	path = billing
+	url = https://github.com/Storj/billing
