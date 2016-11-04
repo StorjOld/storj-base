@@ -1,7 +1,7 @@
 class Docker < ThorBase
   include Open3
   include Thor::Actions
-  
+
   desc 'up <env>', 'starts up a docker composition for the given environment'
 
   def up(env)
@@ -21,8 +21,9 @@ class Docker < ThorBase
   method_option :env, default: :development, aliases: :e
   method_option :tag, aliases: :t, default: :latest
   def build(service)
+    p "build service: #{service}"
     @env = options[:env]
-    run "docker-compose -t storjlabs/#{service}:#{options[:tag]} -f dockerfiles/#{service}-#{options[:env]}.yml build", chdir: WORKDIR
+      run "docker-compose -f dockerfiles/#{service}/#{service}-#{options[:env]}.yml build"#, chdir: WORKDIR
   end
 
   private

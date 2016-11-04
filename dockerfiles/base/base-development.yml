@@ -1,0 +1,11 @@
+version: "2"
+services:
+  base:
+    image: storjlabs/base
+    build:
+      context: ../../
+      dockerfile: ./dockerfiles/base/base-development.dockerfile
+    volumes:
+      - ../..:/storj-base
+    environment:
+      - STAGE=development

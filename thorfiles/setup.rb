@@ -32,8 +32,11 @@ class Setup < ThorBase
     #  git_clean_remotes git_name
     #end
     submodules.each &method(:git_init_and_update)
-    invoke :'docker:build', :base
-    invoke :'docker:build', :storjmodules
+    p 'build base:'
+    invoke :'docker:build', [:base]
+    p 'build storjmodules'
+    invoke :'docker:build', [:storjmodules]
+    p "build #{repo_name}"
     invoke :'docker:build', [repo_name]
   end
 
@@ -53,8 +56,10 @@ class Setup < ThorBase
   desc 'npm_install_storj', 'npm installs storj modules'
 
   def npm_install_storj
+    p "SUBMODULES: #{submodules}"
     submodules.each do |submodule|
-      run "cp #{WORKDIR}/#{submodule}/package.json #{WORKDIR}/package.json"
+      p "MODULE: #{submodule}"
+      run "cp #{submodule}/package.json package.json"
       run 'npm install'
     end
   end
@@ -76,14 +81,24 @@ class Setup < ThorBase
   desc 'npm_install_base', 'installs npm base modules for storj'
 
   def npm_install_base
+    p "npm install base submodules: #{submodules}"
+    git_init_and_update_submodules
     npm_install_storj
     submodules.each do |submodule|
-      package = parse_package_json
+      p "module: #{submodule}"
+      package = parse_package_json submodule
       run "rm -rf #{WORKDIR}/node_modules/#{package['name']}"
     end
   end
 
   private
+
+  def git_init_and_update_submodules
+    submodules.each do |submodule|
+      git_init_and_update submodule
+    end
+  end
+
 
   def parse_package_json(path)
     JSON.parse File.open("#{WORKDIR}/#{path ? path + '/' : ''}package.json").read
@@ -91,8 +106,12 @@ class Setup < ThorBase
 
   def submodules
     return @submodules unless @submodules.nil?
-    popen2e 'git submodule' do |stdin, stdout_stderr, wait_thread|
-      @submodules = stdout_stderr.read.split("\n").map do |line|
+    popen2e 'git submodule', chdir: WORKDIR do |stdin, stdout_stderr, wait_thread|
+      out = stdout_stderr.read
+      print out
+      run 'pwd'
+      run 'ls -la'
+      @submodules = out.split("\n").map do |line|
         /.\w+\s(\S+)/.match(line)[1]
       end
     end
