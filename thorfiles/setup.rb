@@ -31,10 +31,10 @@ class Setup < ThorBase
     #  npm_link git_name
     #  git_clean_remotes git_name
     #end
-    submodules.each &method(:init_and_update)
-    invoke :'docker:build', :base, tag
-    invoke :'docker:build', :storjmodules, tag
-    invoke :'docker:build', repo_name, tag
+    submodules.each &method(:git_init_and_update)
+    invoke :'docker:build', :base
+    invoke :'docker:build', :storjmodules
+    invoke :'docker:build', [repo_name]
   end
 
   desc 'clone <docker_project_root>',
@@ -86,16 +86,18 @@ class Setup < ThorBase
   private
 
   def parse_package_json(path)
-    JSON.parse File.open("#{WORKDIR}/#{path ? path+/ : ''}package.json").read
+    JSON.parse File.open("#{WORKDIR}/#{path ? path + '/' : ''}package.json").read
   end
 
   def submodules
-    return if @submodules.present?
+    return @submodules unless @submodules.nil?
     popen2e 'git submodule' do |stdin, stdout_stderr, wait_thread|
       @submodules = stdout_stderr.read.split("\n").map do |line|
-        /.\w+\s(\w+)/.match(line)[1]
+        /.\w+\s(\S+)/.match(line)[1]
       end
     end
+    p @submodules
+    @submodules
   end
 
   def parse_deps(package_path, package_path_template, repo_name = nil, &block)
