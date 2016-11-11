@@ -12,31 +12,21 @@ class Setup < ThorBase
 
   def npm_install_storj
     get_non_conflicting = -> (key) {
-      # p "reduce_on called with key: #{key}"
-      result = submodules.reduce({}) do |acc, submodule|
-        # p "reducer called with submodule: #{submodule}"
+      submodules.reduce({}) do |acc, submodule|
         package_json = parse_package_json submodule
-        # print "package_json:\n#{package_json}\n"
-        # p "key: #{key}"
         target = package_json[key]
 
         next acc unless target
 
         non_conflicting = target.keys.to_set ^ acc.keys
-        # p "acc class: #{acc.class}"
-        # p "selected_target class: #{acc.class}"
         next acc.merge(target.select do |key, value|
           non_conflicting.include? key
         end)
       end
-      # print "result:\n-------\n#{result}\n"
-      result
     }
 
     non_conflicting_deps = get_non_conflicting.call :dependencies
     non_conflicting_dev_deps = get_non_conflicting.call :devDependencies
-    # print "deps:\n-----\n#{non_conflicting_deps}\n"
-    # print "devDeps:\n--------\n#{non_conflicting_dev_deps}\n"
 
     storj_no_conflict = {
         name: 'storj-no-conflict',
@@ -45,12 +35,6 @@ class Setup < ThorBase
         devDependencies: non_conflicting_dev_deps
     }
 
-    # p "PACKAGE"
-    # p "PACKAGE"
-    # p "PACKAGE"
-    # p "PACKAGE"
-    # p "PACKAGE"
-    # print JSON.dump(storj_no_conflict) + "\n"
     File.open('package.json', 'w') do |file|
       file.write JSON.dump(storj_no_conflict)
     end
@@ -79,11 +63,6 @@ class Setup < ThorBase
     p "npm install submodule deps: #{submodules}"
     git_init_and_update_submodules
     npm_install_storj
-    # submodules.each do |submodule|
-    #   p "module: #{submodule}"
-    #   package = parse_package_json submodule
-    #   run "rm -rf #{WORKDIR}/node_modules/#{package['name']}"
-    # end
   end
 
   private
