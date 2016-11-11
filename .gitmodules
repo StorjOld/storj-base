@@ -7,3 +7,21 @@
 [submodule "billing"]
 	path = billing
 	url = https://github.com/Storj/billing
+[submodule "bridge-gui"]
+	path = bridge-gui
+	url = ./bridge-gui
+[submodule "bridge"]
+	path = bridge
+	url = ./bridge
+[submodule "complex"]
+	path = complex
+	url = ./complex
+[submodule "core"]
+	path = core
+	url = ./core
+[submodule "service-error-types"]
+	path = service-error-types
+	url = ./service-error-types
+[submodule "service-storage-models"]
+	path = service-storage-models
+	url = ./service-storage-models
