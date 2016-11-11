@@ -1,0 +1,14 @@
+version: '2'
+services:
+  thor:
+    image: storjlabs/thor:latest
+    build:
+      context: ../../
+      dockerfile: ./dockerfiles/thor/thor-development.dockerfile
+    privileged: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '../:/storj-base'
+#      - '../../thorfiles:/storj-base/thorfiles'
+#      - '../../Thorfile:/storj-base/Thorfile'
+#      - '../:/storj-base/dockerfiles'

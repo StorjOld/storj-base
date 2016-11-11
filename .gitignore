@@ -1,0 +1,6 @@
+# IntelliJ dotfiles
+.idea/
+.rbenv-gemsets
+
+# Local ruby bundle files
+gems/

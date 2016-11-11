@@ -1,0 +1,10 @@
+#! /bin/bash
+
+ARGS='--rm thor /bin/bash'
+
+if [ "$#" -gt 0 ]; then
+	ARGS="thor thor $*"
+fi
+
+docker-compose -f ./dockerfiles/thor-development.yml run $ARGS
+

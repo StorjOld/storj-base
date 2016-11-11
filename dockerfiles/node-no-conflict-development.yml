@@ -1,0 +1,11 @@
+version: '2'
+services:
+  base:
+    image: storjlabs/node-no-conflict:latest
+    build:
+      context: ../../
+      dockerfile: ./dockerfiles/node-no-conflict/node-no-conflict-development.dockerfile
+    volumes:
+      - ..:/storj-base
+    environment:
+      - STAGE=development
