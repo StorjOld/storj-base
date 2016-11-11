@@ -1,24 +1,27 @@
-[submodule "core"]
-	path = core
-	url = https://github.com/Storj/core.git
 [submodule "service-middleware"]
 	path = service-middleware
-	url = https://github.com/Storj/service-middleware.git
-[submodule "service-storage-models"]
-	path = service-storage-models
-	url = https://github.com/Storj/service-storage-models.git
-[submodule "bridge"]
-	path = bridge
-	url = https://github.com/Storj/bridge.git
+	url = https://github.com/Storj/service-middleware
+[submodule "mongodb-adapter"]
+	path = mongodb-adapter
+	url = https://github.com/Storj/mongodb-adapter
 [submodule "billing"]
 	path = billing
-	url = https://github.com/Storj/billing.git
-[submodule "service-error-types"]
-	path = service-error-types
-	url = https://github.com/Storj/service-error-types.git
+	url = https://github.com/Storj/billing
 [submodule "bridge-gui"]
 	path = bridge-gui
-	url = https://github.com/Storj/bridge-gui.git
+	url = ./bridge-gui
+[submodule "bridge"]
+	path = bridge
+	url = ./bridge
 [submodule "complex"]
 	path = complex
-	url = https://github.com/Storj/complex.git
+	url = ./complex
+[submodule "core"]
+	path = core
+	url = ./core
+[submodule "service-error-types"]
+	path = service-error-types
+	url = ./service-error-types
+[submodule "service-storage-models"]
+	path = service-storage-models
+	url = ./service-storage-models
