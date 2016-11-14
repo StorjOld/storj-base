@@ -1,4 +1,4 @@
-FROM storjlabs/storj:base
+FROM storjlabs/interpreter:latest
 
 RUN apt-get update && apt install -y vim-tiny curl
 

@@ -61,11 +61,27 @@ class Setup < ThorBase
 
   def npm_install_node_no_conflict
     p "npm install submodule deps: #{submodules}"
+    submodules.each do |submodule|
+        remove_remotes submodule
+        git_set_remotes submodule
+    end
     git_init_and_update_submodules
     npm_install_storj
   end
 
   private
+
+  def remove_remotes(repo_name)
+    run "cd #{repo_name}"
+    remotes = `git remote`.split "\n"
+    remotes.each do |remote|
+        run "git remote remove #{remote}"
+    end
+  end
+
+  def git_set_remotes(repo_name)
+    run "cd #{repo_name} && git remote add origin https://github.com/Storj/#{repo_name}"
+  end
 
   def git_init_and_update_submodules
     submodules.each do |submodule|
