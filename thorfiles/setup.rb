@@ -62,10 +62,11 @@ class Setup < ThorBase
   def npm_install_node_no_conflict
     p "npm install submodule deps: #{submodules}"
     submodules.each do |submodule|
-        remove_remotes submodule
-        git_set_remotes submodule
+      git_init submodule
+      remove_remotes submodule
+      git_set_remotes submodule
+      git_update submodule
     end
-    git_init_and_update_submodules
     npm_install_storj
   end
 
@@ -75,7 +76,7 @@ class Setup < ThorBase
     run "cd #{repo_name}"
     remotes = `git remote`.split "\n"
     remotes.each do |remote|
-        run "git remote remove #{remote}"
+      run "git remote remove #{remote}"
     end
   end
 
@@ -83,18 +84,20 @@ class Setup < ThorBase
     run "cd #{repo_name} && git remote add origin https://github.com/Storj/#{repo_name}"
   end
 
-  def git_init_and_update_submodules
-    submodules.each do |submodule|
-      git_init_and_update submodule
-    end
-  end
-
   def parse_package_json(path)
     JSON.parse(File.open("#{WORKDIR}/#{path ? path + '/' : ''}package.json").read, { symbolize_names: true })
   end
 
   def git_init_and_update(repo_name)
+    git_init repo_name
+    git_update repo_name
+  end
+
+  def git_init(repo_name)
     run "git submodule init #{repo_name}"
+  end
+
+  def git_update(repo_name)
     run "git submodule update #{repo_name}"
   end
 end
