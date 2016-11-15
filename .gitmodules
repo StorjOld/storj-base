@@ -9,19 +9,19 @@
 	url = https://github.com/Storj/billing
 [submodule "bridge-gui"]
 	path = bridge-gui
-	url = ./bridge-gui
+	url = https://github.com/Storj/bridge-gui
 [submodule "bridge"]
 	path = bridge
-	url = ./bridge
+	url = https://github.com/Storj/bridge
 [submodule "complex"]
 	path = complex
-	url = ./complex
+	url = https://github.com/Storj/complex
 [submodule "core"]
 	path = core
-	url = ./core
+	url = https://github.com/Storj/core
 [submodule "service-error-types"]
 	path = service-error-types
-	url = ./service-error-types
+	url = https://github.com/Storj/service-error-types
 [submodule "service-storage-models"]
 	path = service-storage-models
-	url = ./service-storage-models
+	url = https://github.com/Storj/service-storage-models

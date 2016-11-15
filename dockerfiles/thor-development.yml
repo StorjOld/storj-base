@@ -9,7 +9,6 @@ services:
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
 #      - '../:/storj-base'
+      - '../Thorfile:/storj-base/Thorfile'
       - '../thorfiles:/storj-base/thorfiles'
-#      - '../../Thorfile:/storj-base/Thorfile'
-      - '../thorfile.thor:/storj-base/thorfile.thor'
       - '../dockerfiles/:/storj-base/dockerfiles'
