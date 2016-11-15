@@ -7,39 +7,22 @@ class Docker < ThorBase
 
   def build(image_name, version = 'latest')
     @env = options[:env]
-    dockerfile_path = "./dockerfiles/#{image_name}-#{@env}.dockerfile"
+    dockerfile_path = "#{WORKDIR}/dockerfiles/#{image_name}-#{@env}.dockerfile"
     tag = "storjlabs/#{image_name}:#{ENV['CONTAINER_TAG'] || version}"
     docker dockerfile_path, :build, tag: tag
   end
 
-  desc 'build_submodule <label>',
-       'builds a docker container for the given label'
+  desc 'build_submodule <submodule>',
+       'builds a docker container for the given submodule'
 
   method_option :env, default: :development, aliases: :e
   method_option :tag, aliases: :t, default: :latest
 
-  # NB: If `label` matches a submodule name, it is used as the image name,
-  # otherwise it is used as the tag to the "storjlabs/storj" image
-  #
-  # i.e. given a submodule, "billing":
-  #
-  # the label "billing" would # interpolate
-  # to the image name "storjlabs/billing:latest"
-  # the label "node-no-conflict" would interpolate
-  # to the image name "storjlabs/storj:node-no-conflict"
-  def build_submodule(label)
-    # @env = options[:env]
-    # image_name, tag, dockerfile_dir = [label, options[:tag], "#{label}/dockerfiles"]
-    # dockerfile_path = "#{dockerfile_dir}/#{image_name}-#{@env}.dockerfile"
-    # docker dockerfile_path, :build, tag: "storjlabs/#{image_name}:#{tag}"
-
+  def build_submodule(submodule)
     @env = options[:env]
-    image_name, tag, dockerfile_dir =
-        (submodules.include? label) ?
-                                [label, options[:tag], "#{label}/dockerfiles"] :
-                                ['storj', "#{label}:latest", 'dockerfiles']
-    dockerfile_path = "#{dockerfile_dir}/#{image_name}-#{@env}.dockerfile"
-    docker dockerfile_path, :build, tag: "storjlabs/#{image_name}:#{tag}"
+    tag = options[:tag]
+    dockerfile_path = "#{WORKDIR}/#{submodule}/dockerfiles/#{submodule}-#{@env}.dockerfile"
+    docker dockerfile_path, :build, tag: "storjlabs/#{submodule}:#{tag}", context: "#{WORKDIR}/#{submodule}"
   end
 
   desc 'build-composition <composition_name>',
@@ -73,10 +56,11 @@ class Docker < ThorBase
     case command
       when :build
         args[:file] = dockerfile_path
-        args[''] = WORKDIR
+        args[''] = args[:context] || WORKDIR
         print "BUILDING: #{dockerfile_path}\n"
     end
 
+    args.delete :context
     args_string = args.map { |arg, value| "--#{arg} #{value}" }.join(' ')
     print "docker #{command} #{args_string}\n"
     run "docker #{command} #{args_string}"

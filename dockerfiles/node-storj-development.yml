@@ -1,10 +1,10 @@
 version: '2'
 services:
   base:
-    image: storjlabs/node-no-conflict:latest
+    image: storjlabs/node-storj:latest
     build:
       context: ../../
-      dockerfile: ./dockerfiles/node-no-conflict/node-no-conflict-development.dockerfile
+      dockerfile: ./dockerfiles/node-storj-development.dockerfile
     volumes:
       - ..:/storj-base
     environment:
