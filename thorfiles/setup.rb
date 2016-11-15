@@ -2,7 +2,12 @@ class Setup < ThorBase
   desc 'submodule <repo name> [version]', 'setup using git submodules (for dev)'
 
   def submodule(repo_name, version = 'latest')
-    submodules.each &method(:git_init_and_update)
+    submodules.each do |submodule|
+      git_init submodule
+      remove_remotes submodule
+      git_set_remotes submodule
+      git_update submodule
+    end 
     run 'thor docker:build thor'
     run 'thor docker:build node-no-conflict'
     run "thor docker:build_submodule #{repo_name}"
@@ -73,10 +78,9 @@ class Setup < ThorBase
   private
 
   def remove_remotes(repo_name)
-    run "cd #{repo_name}"
     remotes = `git remote`.split "\n"
     remotes.each do |remote|
-      run "git remote remove #{remote}"
+      run "cd #{repo_name} && git remote remove #{remote}"
     end
   end
 
