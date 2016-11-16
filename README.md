@@ -40,22 +40,23 @@ Ideally, all storj repos use the same tooling to provide a consistent devops int
 
 #### Dependencies
 
-+ gnu `make`
++ `bash` (or bash compatible shell)
 + `docker`
 + `docker-compose`
 
 #### Methodology
 
-Storj-base uses `make` for the main point-of-entry. `make` is an extremely common build tool and should be most widely available.
-Make is used as a wrapper around more powerful tools that run inside a docker container, where they have all the dependencies they need without the hassle of installation onto the host system.
+Storj-base uses a couple of lightweight bash wrappers around docker for the main point-of-entry. `bash` is a pretty ubiquitous tool and should be most widely available.
+
+These wrappers are used to invoke docker containers/compositions which provide  more powerful tools that would otherwise burden the host with additional dependencies. Using docker in this way also ensures a consistent environment when using the tools.
 
 Control-flow:
 
-1. User executes `make <some goal>` _(see [make](#make-docshttpswwwgnuorgsoftwaremakemanualmakehtml) and [goal](#goal) in the glossary)_
-2. [Make](#make-docshttpswwwgnuorgsoftwaremakemanualmakehtml) [recipe](#recipe) runs a docker container or [composition](#composition)/[service](#service), executing the corresponding [thor](#thor-docshttpsgithubcomerikhudathorwiki) task
+1. User executes `./thor.sh <some thor command>` _(see [thor](#) in the glossary)_
+2. [Thor](#thor-docshttpsgithubcomerikhudathorwiki) runs in a docker [composition](#composition), executing the corresponding task
 
-[Thor](#thor-docshttpsgithubcomerikhudathorwiki) is used to perform most tasks as it's much better suited for defining and performing devops tasks than a javascript task runner.
-To eliminate the need for a ruby interpreter the [docker](#docker-docshttpsdocsdockercom) dependency is reused in conjunction with the [storjlabs/storj:thor](#storjlabsstorjthor) to provide an environment where the thorfiles are available and executable.
+[Thor](#thor-docshttpsgithubcomerikhudathorwiki) is used to perform most tasks as it's much better suited for defining and performing devops tasks than any javascript task runner I've used (e.g. grunt, gulp, etc.).
+
 
 Additionally, when working in the storj-base repo, a [docker composition](#composition) ([thor.yml](./dockerfiles/thor.yml)) is used to provide access to the thor container as well as mounting the repo directory as a [volume](#volume) at `/storj-base`.
 
@@ -95,13 +96,17 @@ This tree is used to run a series of `npm link` and `npm link <module name>` com
 Docker Images
 -------------
 
-### `storjlabs/storj:base`
+### `storjlabs/interpreter`
 
-Serves as a base image for all storj containers; it includes ruby 2 and node 4 interpreters.
+Serves as a base image for all storj containers; it includes ruby 2 and node 6 interpreters.
 
-### `storjlabs/storj:thor`
+Based on Debian jessie.
+
+### `storjlabs/thor`
 
 Provides the thorfiles, allowing the use of our devops tooling within images that build [`FROM`](https://docs.docker.com/engine/reference/builder/#/from) it.
+
+Also provides `nettools`, `curl`, and `vim-tiny` utilities.
 
 
 Tool Docs / Glossary
