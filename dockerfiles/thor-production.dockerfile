@@ -2,6 +2,10 @@ FROM storjlabs/interpreter:latest
 
 WORKDIR /storj-base
 
+RUN git init
+COPY ./thorfiles/index /storj-base/.git/index
+COPY .gitmodules /storj-base/.gitmodules
+
 COPY .git /storj-base/.git
 COPY .gitmodules /storj-base/.gitmodules
 

@@ -1,9 +1,0 @@
-version: "2"
-services:
-  thor:
-    image: storjlabs/storj:thor
-    build:
-      context: ..
-      dockerfile: ./dockerfiles/thor.dockerfile
-    volumes:
-      - ..:/storj-base

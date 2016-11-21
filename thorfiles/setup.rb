@@ -18,16 +18,6 @@ class Setup < ThorBase
   def npm_link_storj
     submodules.each do |submodule|
       run "ln -s #{WORKDIR}/node_modules #{WORKDIR}/#{submodule}/node_modules"
-      # run "cd #{submodule} && npm install"
-
-      # run "cd #{submodule} && npm link"
-      # package = parse_package_json submodule
-      # package[:dependencies].each do |name, version|
-      #   # TODO: this isn't the best way to test if a module shoould be linked
-      #   if /^storj-/.match name
-      #     run "npm link #{name}"
-      #   end
-      # end
     end
   end
 
