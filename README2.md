@@ -87,7 +87,7 @@ A submodule, once inited updated, acts like it's own git repo. If you cd into th
 
 #### To run a submodule [service]():
 
-`./thor.sh submodule:run <submodule name> <service name>`
+`./thor.sh submodule:run <submodule name> <service name> [command]`
 
 
 

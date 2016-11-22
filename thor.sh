@@ -1,6 +1,6 @@
 #! /bin/bash
 
-ARGS='thor help'
+ARGS='container thor help'
 
 if [ "$#" -gt 0 ]; then
 	ARGS="container thor $*"

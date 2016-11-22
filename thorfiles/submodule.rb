@@ -34,10 +34,12 @@ class Submodule < ThorBase
   method_option :force, aliases: :f, default: false, type: :boolean
 
   def deinit
-    force = options[:force] ? '--force' : ''
+    Context.host 'submodule:deinit' do
+      force = options[:force] ? '--force' : ''
 
-    submodules.each do |submodule|
-      @actions.run "git submodule deinit #{force} #{submodule}"
+      submodules.each do |submodule|
+        @actions.run "git submodule deinit #{force} #{submodule}"
+      end
     end
   end
 
