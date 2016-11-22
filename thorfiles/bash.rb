@@ -1,7 +1,19 @@
-class Util < ThorBase
-  desc 'bash', 'Drop into a bash shell on the thor docker container, mounting project directory at /storj-base'
+class Bash < ThorBase
+  desc 'container', 'get a shell on a thor instance'
 
-  def bash
+  def container
+    stubbed
+  end
+
+  desc 'host', 'get a shell on a thor instance with project directory mounted at /storj-base'
+
+  def host
+    stubbed
+  end
+
+  private
+
+  def stubbed
     print <<END_PRINT
 Noop - this is a stub to provide documentation.
 the bash wrapper on the host should detect the invocation of this task and execute a `docker-compose` command instead.
