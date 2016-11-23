@@ -1,21 +1,23 @@
 class Submodule < ThorBase
-  desc 'build <submodule name>', 'Builds docker image (and optionally dep images) for given submodule'
+  desc 'build <submodule name> [service name]', 'Builds docker image (and optionally dep images) for given submodule'
 
   method_option :deps, aliases: :d, default: false, type: :boolean
   method_option :env, aliases: :e, default: :development, type: :string
 
-  def build(submodule)
+  def build(submodule, service = '')
     @env = options[:env]
 
     if options[:deps]
-      Docker::build 'thor', options
-      Docker::build 'node-storj', options
+      # invoke 'docker:build', ['thor']
+      # invoke 'docker:build', ['node-storj']
+      ::Docker.new.build 'thor' #, options
+      ::Docker.new.build 'node-storj' #, options
     end
 
     git_init_and_update submodule
 
     composition_yml_path = "#{WORKDIR}/#{submodule}/dockerfiles/#{submodule}-#{@env}.yml"
-    docker_compose :build, file: composition_yml_path, context: "#{WORKDIR}/#{submodule}"
+    docker_compose :build, service, file: composition_yml_path
   end
 
   desc 'update', 'Init and update all git submodules given current .git/index and .gitmodules files'

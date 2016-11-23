@@ -3,13 +3,20 @@ class Docker < ThorBase
 
   method_option :env, default: :development, aliases: :e
   method_option :tag, aliases: :t, default: :latest
-  method_option :'no-cache', type: :boolean
+  method_option :'no-cache', type: :boolean, default: false
 
   def build(image_name, version = 'latest')
     # TODO: do we need @env?
     @env = options[:env]
     dockerfile_path = "#{WORKDIR}/dockerfiles/#{image_name}.dockerfile"
     tag = "storjlabs/#{image_name}:#{ENV['CONTAINER_TAG'] || version}"
-    docker :build, file: dockerfile_path, tag: tag
+
+    args = {
+        tag: tag,
+        file: dockerfile_path
+    }
+    args[:'no-cache'] = '' if options[:'no-cache']
+
+    docker :build, args
   end
 end

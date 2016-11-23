@@ -20,6 +20,7 @@ class Setup < ThorBase
         dependencies: {},
     }
     submodules.each do |submodule|
+      git_init_and_update submodule
       npm_name = parse_package_json(submodule)[:name]
       storj_base_package[:dependencies][npm_name] = "./#{submodule}"
     end
