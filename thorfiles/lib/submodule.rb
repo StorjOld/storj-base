@@ -21,12 +21,8 @@ class Submodule < ThorBase
   desc 'update', 'Init and update all git submodules given current .git/index and .gitmodules files'
 
   def update
-    if ENV[:CONTEXT] == 'host'
-      deinit
-      submodules.each &method(:git_init_and_update)
-    else
-      `docker-compose -f ./dockerfiles/thor.yml run host thor update`
-    end
+    deinit
+    submodules.each &method(:git_init_and_update)
   end
 
   desc 'deinit', 'Deinit all git submodules'
@@ -34,12 +30,10 @@ class Submodule < ThorBase
   method_option :force, aliases: :f, default: false, type: :boolean
 
   def deinit
-    Context.host 'submodule:deinit' do
-      force = options[:force] ? '--force' : ''
+    force = options[:force] ? '--force' : ''
 
-      submodules.each do |submodule|
-        @actions.run "git submodule deinit #{force} #{submodule}"
-      end
+    submodules.each do |submodule|
+      run "git submodule deinit #{force} #{submodule}"
     end
   end
 
@@ -48,22 +42,18 @@ class Submodule < ThorBase
   method_option :env, default: :development, aliases: :e
 
   def up(submodule, service = '')
-    Context.host 'submodule:up', submodule, service do
-      @env = options[:env]
-      composition_yml = "#{WORKDIR}/submodule/dockerfiles/#{submodule}-#{@env}.yml"
-      docker_compose composition_yml, 'up', service: service
-    end
+    @env = options[:env]
+    composition_yml = "#{WORKDIR}/submodule/dockerfiles/#{submodule}-#{@env}.yml"
+    docker_compose composition_yml, 'up', service: service
   end
 
   desc 'run <submodule name> <service name> [command]', 'Run a one-off command in the specified service for the given submodule\'s composition'
 
   method_option :env, default: :development, aliases: :e
 
-  def run(submodule, service, command = '')
-    Context.host 'submodule:run', submodule, service, command do
-      @env = options[:env]
-      composition_yml = "#{WORKDIR}/submodule/dockerfiles/#{submodule}-#{@env}.yml"
-      docker_compose composition_yml, 'run', service: service, command: command
-    end
+  def command(submodule, service, command = '')
+    @env = options[:env]
+    composition_yml = "#{WORKDIR}/submodule/dockerfiles/#{submodule}-#{@env}.yml"
+    docker_compose composition_yml, 'run', service: service, command: command
   end
 end

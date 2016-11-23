@@ -1,10 +1,19 @@
 class ThorBase < Thor
-  @actions = Thor::Actions
+  include Thor::Actions
   include Open3
 
   WORKDIR = File.absolute_path("#{__dir__}/..")
 
   private
+
+  # def get_args(method_name, binding)
+  #   [
+  #       method_name,
+  #       method(method_name).parameters.map do |arg|
+  #         binding.eval arg[1].to_s
+  #       end
+  #   ]
+  # end
 
   def submodules
     return @submodules unless @submodules.nil?
@@ -22,11 +31,11 @@ class ThorBase < Thor
   end
 
   def git_init(repo_name)
-    @actions.run "git submodule init #{repo_name}"
+    run "git submodule init #{repo_name}"
   end
 
   def git_update(repo_name)
-    @actions.run "git submodule update #{repo_name}"
+    run "git submodule update #{repo_name}"
   end
 
   def parse_package_json(path)
@@ -34,11 +43,13 @@ class ThorBase < Thor
   end
 
   def docker(command, args)
+    dockerfile_path = args[:file]
+
     print "BUILDING: #{dockerfile_path}\n"
     args_string = parse_docker_args command, args
 
     if File.file? args[:file]
-      @actions.run "docker #{command} #{args_string}"
+      run "docker #{command} #{args_string}"
     else
       print "Couldn't find dockerfile at #{args[:file]}\n"
     end
@@ -52,7 +63,7 @@ class ThorBase < Thor
     args_string = parse_docker_args command, args
 
     if File.file? file
-      @actions.run "docker-compose -f #{file} #{command} #{args_string} #{@service}"
+      run "docker-compose -f #{file} #{command} #{args_string} #{@service}"
     else
       print "Couldn't find docker composition file at #{file}\n"
     end

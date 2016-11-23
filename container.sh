@@ -7,7 +7,8 @@ if [ "$#" -gt 0 ]; then
 fi
 
 if [ "$1" == "bash:host" ]; then
-  ARGS="host /bin/bash"
+  echo "Please run \`./host.sh bash:host\` instead"
+  exit 1
 fi
 
 if [ "$1" == "bash:container" ]; then

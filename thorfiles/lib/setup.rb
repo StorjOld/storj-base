@@ -3,10 +3,10 @@ class Setup < ThorBase
 
   def npm_link_storj
     submodules.each do |submodule|
-      @actions.run "ln -s #{WORKDIR}/node_modules #{WORKDIR}/#{submodule}/node_modules"
-      @actions.run "cd #{submodule} && npm link"
+      run "ln -s #{WORKDIR}/node_modules #{WORKDIR}/#{submodule}/node_modules"
+      run "cd #{submodule} && npm link"
       package = parse_package_json submodule
-      @actions.run "npm link #{package[:name]}"
+      run "npm link #{package[:name]}"
     end
   end
 
@@ -28,9 +28,7 @@ class Setup < ThorBase
       file.write JSON.dump(storj_base_package)
     end
 
-    @actions.run 'cat ./package.json'
-
-    @actions.run 'npm install'
+    run 'npm install'
   end
 
   private
@@ -38,11 +36,11 @@ class Setup < ThorBase
   def remove_remotes(repo_name)
     remotes = `git remote`.split "\n"
     remotes.each do |remote|
-      @actions.run "cd #{repo_name} && git remote remove #{remote}"
+      run "cd #{repo_name} && git remote remove #{remote}"
     end
   end
 
   def git_set_remotes(repo_name)
-    @actions.run "cd #{repo_name} && git remote add origin https://github.com/Storj/#{repo_name}"
+    run "cd #{repo_name} && git remote add origin https://github.com/Storj/#{repo_name}"
   end
 end

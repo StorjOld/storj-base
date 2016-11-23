@@ -8,9 +8,11 @@ services:
     privileged: true
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
-      - '../Thorfile:/storj-base/Thorfile'
-      - '../thorfiles:/storj-base/thorfiles'
+      - '../thorfiles/container.thor:/storj-base/Thorfile'
+      - '../thorfiles/lib:/storj-base/thorfiles'
       - '../dockerfiles/:/storj-base/dockerfiles'
+    environment:
+      CONTEXT: container
   host:
     image: storjlabs/thor:latest
     build:
@@ -20,5 +22,7 @@ services:
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - '../:/storj-base'
+      - '../thorfiles/host.thor:/storj-base/Thorfile'
+      - '../thorfiles/lib:/storj-base/thorfiles'
     environment:
       CONTEXT: host
