@@ -17,11 +17,13 @@
 	path = complex
 	url = https://github.com/Storj/complex
 [submodule "core"]
+	branch = billing
 	path = core
 	url = https://github.com/Storj/core
 [submodule "service-error-types"]
 	path = service-error-types
 	url = https://github.com/Storj/service-error-types
 [submodule "service-storage-models"]
+	branch = billing-models
 	path = service-storage-models
 	url = https://github.com/Storj/service-storage-models

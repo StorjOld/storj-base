@@ -6,7 +6,7 @@ class Setup < ThorBase
       # git_init_and_update submodule
       run "ln -s #{WORKDIR}/node_modules #{WORKDIR}/#{submodule}/node_modules"
       run "cd #{submodule} && yarn link"
-      run "cd #{submodule} && yarn"
+      yarn_install submodule
       package = parse_package_json submodule
       run "yarn link #{package[:name]}"
     end
@@ -45,7 +45,7 @@ class Setup < ThorBase
       file.write JSON.dump(storj_no_conflict)
     end
 
-    run 'yarn'
+    yarn_install
   end
 
   private

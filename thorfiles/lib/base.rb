@@ -25,6 +25,13 @@ class ThorBase < Thor
     @submodules
   end
 
+  def yarn_install(path = '.')
+    options = ENV['THOR_ENV'] == 'development' ?
+        '--ignore-engines' : '--production'
+
+    run "cd #{path} && yarn install #{options}"
+  end
+
   def git_init_and_update(repo_name)
     git_init repo_name
     git_update repo_name
@@ -35,7 +42,7 @@ class ThorBase < Thor
   end
 
   def git_update(repo_name)
-    run "git submodule update #{repo_name}"
+    run "git submodule update --remote #{repo_name}"
   end
 
   def parse_package_json(path)

@@ -4,6 +4,7 @@ class Docker < ThorBase
   method_option :env, default: :development, aliases: :e
   method_option :tag, aliases: :t, default: :latest
   method_option :'no-cache', type: :boolean, default: false
+  method_option :'build-arg', aliases: :b, type: :string
 
   def build(image_name, version = 'latest')
     # TODO: do we need @env?
@@ -16,6 +17,7 @@ class Docker < ThorBase
         file: dockerfile_path
     }
     args[:'no-cache'] = '' if options[:'no-cache']
+    args[:'build-arg'] = options[:'build-arg'] if options[:'build-arg']
 
     docker :build, args
   end

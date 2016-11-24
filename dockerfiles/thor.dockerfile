@@ -1,12 +1,12 @@
 FROM storjlabs/interpreter:latest
 
-RUN apt-get install -y vim-tiny curl net-tools
+RUN apt-get install -y vim-tiny curl net-tools jq
 
 RUN mkdir /storj-base
 WORKDIR /storj-base
 
 RUN git init
-COPY ./thorfiles/index /storj-base/.git/index
+COPY ./thorfiles/support/.git-index /storj-base/.git/index
 COPY .gitmodules /storj-base/.gitmodules
 
 COPY ./dockerfiles/bin/* /usr/local/bin/
