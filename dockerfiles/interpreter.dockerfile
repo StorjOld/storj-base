@@ -1,6 +1,11 @@
 FROM ruby
 
-RUN apt-get update && apt-get install -y git
+### INSTALL YARN
+
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+	&& echo "deb http://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list \
+
+RUN apt-get update && apt-get install -y git yarn
 
 ### INSTALL NODE: taken from dockerhub node:4.6 dockerfile (https://github.com/nodejs/docker-node/blob/4029a8f71920e1e23efa79602167014f9c325ba0/4.6/Dockerfile)
 
