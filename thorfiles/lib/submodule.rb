@@ -7,6 +7,9 @@ class Submodule < ThorBase
   def build(submodule, service = '')
     @env = options[:env]
 
+    gemfile_lock_path = "#{WORKDIR}/Gemfile.lock"
+    File.delete gemfile_lock_path if File.file? gemfile_lock_path
+
     if options[:deps]
       # invoke 'docker:build', ['thor']
       # invoke 'docker:build', ['node-storj']
@@ -21,6 +24,8 @@ class Submodule < ThorBase
   end
 
   desc 'update', 'Init and update all git submodules given current .git/index and .gitmodules files'
+
+  # method_option :force, aliases: :f, default: false, type: :boolean
 
   def update
     deinit
