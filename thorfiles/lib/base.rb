@@ -2,7 +2,7 @@ class ThorBase < Thor
   include Thor::Actions
   include Open3
 
-  WORKDIR = File.absolute_path("#{__dir__}/..")
+  WORKDIR = File.absolute_path("#{__dir__}/../..")
 
   private
 

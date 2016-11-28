@@ -17,5 +17,6 @@ RUN bundle i
 
 COPY Thorfile /storj-base/Thorfile
 COPY thorfiles /storj-base/thorfiles
+COPY dockerfiles /storj-base/dockerfiles
 
 #ENTRYPOINT thor
