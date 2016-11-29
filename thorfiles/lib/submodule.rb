@@ -1,4 +1,15 @@
 class Submodule < ThorBase
+  desc 'add <repo name> [git remote url]', 'Add a new git submodule'
+
+  method_option :branch, aliases: :b, type: :string
+
+  def add(repo_name, git_remote_url = 'https://github.com/Storj/%{repo_name}.git')
+    # update .gitmodules
+    append_dot_gitmodules
+    # *update .git/index
+
+  end
+
   desc 'build <submodule name> [service name]', 'Builds docker image (and optionally dep images) for given submodule'
 
   method_option :deps, aliases: :d, default: false, type: :boolean

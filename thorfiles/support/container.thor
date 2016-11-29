@@ -2,8 +2,7 @@ require 'thor'
 require 'open3'
 require 'json'
 
-require_relative './thorfiles/lib/base'
-require_relative './thorfiles/lib/bash'
-require_relative './thorfiles/lib/setup'
-require_relative './thorfiles/lib/submodule'
-require_relative './thorfiles/lib/docker'
+lib_path = './thorfiles/lib'
+require_relative lib_path + '/base'
+required_files = %w(bash setup submodule docker util)
+required_files.each { |file| require_relative "#{lib_path}/#{file}" }
