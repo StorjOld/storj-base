@@ -1,3 +1,4 @@
+<%= thor_generated_warning %>
 version: '2'
 services:
   container:
@@ -8,9 +9,9 @@ services:
     privileged: true
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
-      <%- submodules.each do |submodule| %>
+<% submodules.each do |submodule| -%>
       - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
-      <%- end %>
+<% end -%>
       - '../thorfiles:/storj-base/thorfiles'
       - '../thorfiles/support/container.thor:/storj-base/Thorfile'
       - '../dockerfiles/:/storj-base/dockerfiles'
@@ -25,9 +26,9 @@ services:
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
       - '../:/storj-base'
-      <%- submodules.each do |submodule| %>
+<% submodules.each do |submodule| -%>
       - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
-      <%- end %>
+<% end -%>
       - '../thorfiles:/storj-base/thorfiles'
       - '../thorfiles/support/host.thor:/storj-base/Thorfile'
     environment:

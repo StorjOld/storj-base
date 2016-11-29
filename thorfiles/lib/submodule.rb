@@ -1,7 +1,11 @@
 class Submodule < ThorBase
   desc 'add <repo name> [git remote url]', 'Add a new git submodule'
 
-  method_option :branch, aliases: :b, default: :master, type: :string
+  method_option :branch,
+                aliases: :b,
+                type: :string,
+                default: :master,
+                desc: 'Forward `--branch` arg to `git submodule add`'
 
   def add(repo_name, git_remote_url = 'https://github.com/Storj/%s.git')
     # Interpolate url if applicable
@@ -12,13 +16,21 @@ class Submodule < ThorBase
     }
 
     git_submodule_add git_remote_url, args
+    # TODO: should we just go ahead and build thor here?
     pre_build 'thor'
   end
 
   desc 'build <submodule name> [service name]', 'Builds docker image (and optionally dep images) for given submodule'
 
-  method_option :deps, aliases: :d, default: false, type: :boolean
-  method_option :env, aliases: :e, default: :development, type: :string
+  method_option :deps,
+                aliases: :d,
+                default: false,
+                type: :boolean,
+                desc: 'Build image dependencies as well (i.e. thor, node-storj)'
+  method_option :env,
+                aliases: :e,
+                type: :string,
+                default: :development
 
   def build(submodule, service = '')
     @env = options[:env]
@@ -27,8 +39,6 @@ class Submodule < ThorBase
     File.delete gemfile_lock_path if File.file? gemfile_lock_path
 
     if options[:deps]
-      # invoke 'docker:build', ['thor']
-      # invoke 'docker:build', ['node-storj']
       ::Docker.new.build 'thor' #, options
       ::Docker.new.build 'node-storj' #, options
     end
@@ -50,7 +60,10 @@ class Submodule < ThorBase
 
   desc 'deinit', 'Deinit all git submodules'
 
-  method_option :force, aliases: :f, default: false, type: :boolean
+  method_option :force,
+                aliases: :f,
+                type: :boolean,
+                default: false
 
   def deinit_all
     submodules.each do |submodule|
@@ -60,7 +73,10 @@ class Submodule < ThorBase
 
   desc 'up <submodule name> [service name]', '"Up" a docker composition (or a specific service) for the given submodule'
 
-  method_option :env, default: :development, aliases: :e
+  method_option :env,
+                aliases: :e,
+                type: :string,
+                default: :development
 
   def up(submodule, service = '')
     @env = options[:env]
