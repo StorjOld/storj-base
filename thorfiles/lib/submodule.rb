@@ -43,7 +43,7 @@ class Submodule < ThorBase
       ::Docker.new.build 'node-storj' #, options
     end
 
-    git_init_and_update submodule
+    git_submodule_init_and_update submodule
 
     composition_yml_path = "#{WORKDIR}/#{submodule}/dockerfiles/#{submodule}-#{@env}.yml"
     docker_compose :build, service, file: composition_yml_path
@@ -55,7 +55,8 @@ class Submodule < ThorBase
 
   def update_all
     deinit_all
-    submodules.each &method(:git_init_and_update)
+    # submodules.each &method(:git_init_and_update)
+    git_submodule_init_and_update '.'
   end
 
   desc 'deinit', 'Deinit all git submodules'
@@ -66,9 +67,7 @@ class Submodule < ThorBase
                 default: false
 
   def deinit_all
-    submodules.each do |submodule|
-      git_submodule_deinit submodule, force: options[:force]
-    end
+    git_submodule_deinit '.', force: options[:force]
   end
 
   desc 'up <submodule name> [service name]', '"Up" a docker composition (or a specific service) for the given submodule'

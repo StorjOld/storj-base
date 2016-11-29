@@ -29,7 +29,7 @@ class Setup < ThorBase
       end
     }
 
-    submodules.each &method(:git_init_and_update)
+    submodules.each &method(:git_submodule_init_and_update)
 
     non_conflicting_deps = get_non_conflicting.call :dependencies
     non_conflicting_dev_deps = get_non_conflicting.call :devDependencies

@@ -15,5 +15,9 @@ if [ "$1" == "bash:container" ]; then
   ARGS="container /bin/bash"
 fi
 
+if [ "$1" == "--update" ]; then
+  ARGS="update thor docker:build thor"
+fi
+
 docker-compose -f ./dockerfiles/thor.yml run $ARGS
 

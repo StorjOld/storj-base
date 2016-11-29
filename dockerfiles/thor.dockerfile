@@ -2,12 +2,11 @@ FROM storjlabs/interpreter:latest
 
 RUN apt-get install -y vim-tiny curl net-tools jq
 
-COPY ./Gemfile /storj-base/Gemfile
-RUN bundle i
-
 RUN mkdir /storj-base
 WORKDIR /storj-base
 
+COPY ./Gemfile /storj-base/Gemfile
+RUN bundle i
 RUN git init
 COPY ./thorfiles/.git/index /storj-base/.git/index
 COPY .gitmodules /storj-base/.gitmodules

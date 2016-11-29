@@ -1,35 +1,78 @@
-<%= thor_generated_warning %>
+<%= thor_generated_warning -%>
+
 version: '2'
 services:
   container:
     image: storjlabs/thor:latest
     build:
       context: ../
-      dockerfile: ./dockerfiles/thor/thor-development.dockerfile
+      dockerfile: ./dockerfiles/thor.dockerfile
     privileged: true
     volumes:
+      # Mount docker.sock to allow connection to host docker daemon
       - '/var/run/docker.sock:/var/run/docker.sock'
+
+      #  --- Begin submodule remotes --- #
 <% submodules.each do |submodule| -%>
       - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
 <% end -%>
+      #  --- End submodule remotes --- #
+
+      # Ensure Gemfile is always up to date
+      - '../Gemfile:/storj-base/Gemfile'
+      - '../Gemfile.lock:/storj-base/Gemfile.lock'
+
+      # Ensure thorfiles are awlays up to date
       - '../thorfiles:/storj-base/thorfiles'
+
+      # Mount `/storj-base/Thorfile` dynamically based on service
       - '../thorfiles/support/container.thor:/storj-base/Thorfile'
       - '../dockerfiles/:/storj-base/dockerfiles'
     environment:
       THOR_ENV: development
+
   host:
+    image: storjlabs/thor:latest
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/thor.dockerfile
+    privileged: true
+    volumes:
+      # Mount docker.sock to allow connection to host docker daemon
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+      # For `host` service, mount everything
+      - '../:/storj-base'
+
+      #  --- Begin submodule remotes --- #
+<% submodules.each do |submodule| -%>
+      - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
+<% end -%>
+      # --- End submodule remotes --- #
+
+      # Mount `/storj-base/Thorfile` dynamically based on service
+      - '../thorfiles/support/host.thor:/storj-base/Thorfile'
+    environment:
+      THOR_ENV: development
+
+  update:
     image: storjlabs/thor:latest
     build:
       context: ../
       dockerfile: ./dockerfiles/thor/thor-development.dockerfile
     privileged: true
     volumes:
+      # Mount docker.sock to allow connection to host docker daemon
       - '/var/run/docker.sock:/var/run/docker.sock'
-      - '../:/storj-base'
+
+      #  --- Begin submodule remotes --- #
+      - '../thorfiles/.git/modules/file/refs/remotes:/storj-base/.git/modules/file/refs/remotes'
 <% submodules.each do |submodule| -%>
       - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
 <% end -%>
-      - '../thorfiles:/storj-base/thorfiles'
-      - '../thorfiles/support/host.thor:/storj-base/Thorfile'
+      # --- End submodule remotes --- #
+
+      # Mount `/storj-base/Thorfile` dynamically based on service
+      - '../thorfiles/support/container.thor:/storj-base/Thorfile'
     environment:
       THOR_ENV: development

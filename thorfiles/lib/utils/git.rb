@@ -10,16 +10,16 @@ module Utils
       @submodules
     end
 
-    def git_init_and_update(repo_name)
-      git_init repo_name
-      git_update repo_name
+    def git_submodule_init_and_update(repo_name)
+      git_submodule_init repo_name
+      git_submodule_update repo_name
     end
 
-    def git_init(repo_name)
+    def git_submodule_init(repo_name)
       run "git submodule init #{repo_name}"
     end
 
-    def git_update(repo_name)
+    def git_submodule_update(repo_name)
       run "git submodule update --remote #{repo_name}"
     end
 
