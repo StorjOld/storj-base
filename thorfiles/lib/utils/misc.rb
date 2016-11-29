@@ -19,7 +19,7 @@ module Utils
       # remotes from the host's .git dir
       _submodules = repo_name.nil? ? submodules : [repo_name]
       _submodules.each do |submodule|
-        run "mkdir -p #{WORKDIR}/thorfiles/.git/modules/#{submodule}/refs/remotes"
+        run "mkdir -p #{WORKDIR}/thorfiles/support/git/modules/#{submodule}/refs/remotes"
       end
     end
   end

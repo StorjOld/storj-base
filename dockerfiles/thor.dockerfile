@@ -8,7 +8,7 @@ WORKDIR /storj-base
 COPY ./Gemfile /storj-base/Gemfile
 RUN bundle i
 RUN git init
-COPY ./thorfiles/.git/index /storj-base/.git/index
+COPY ./thorfiles/support/git/index /storj-base/.git/index
 COPY .gitmodules /storj-base/.gitmodules
 
 COPY ./dockerfiles/bin/* /usr/local/bin/

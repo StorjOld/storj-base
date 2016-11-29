@@ -40,7 +40,7 @@ services:
 
       #  --- Begin submodule remotes --- #
 <% submodules.each do |submodule| -%>
-      - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
+      - '../thorfiles/support/git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
 <% end -%>
       # --- End submodule remotes --- #
 
