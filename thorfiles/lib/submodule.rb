@@ -55,7 +55,6 @@ class Submodule < ThorBase
 
   def update_all
     deinit_all
-    # submodules.each &method(:git_init_and_update)
     git_submodule_init_and_update '.'
   end
 
