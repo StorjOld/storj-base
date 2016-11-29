@@ -1,0 +1,34 @@
+version: '2'
+services:
+  container:
+    image: storjlabs/thor:latest
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/thor/thor-development.dockerfile
+    privileged: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      <%- submodules.each do |submodule| %>
+      - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
+      <%- end %>
+      - '../thorfiles:/storj-base/thorfiles'
+      - '../thorfiles/support/container.thor:/storj-base/Thorfile'
+      - '../dockerfiles/:/storj-base/dockerfiles'
+    environment:
+      THOR_ENV: development
+  host:
+    image: storjlabs/thor:latest
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/thor/thor-development.dockerfile
+    privileged: true
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '../:/storj-base'
+      <%- submodules.each do |submodule| %>
+      - '../thorfiles/.git/modules/<%= submodule %>/refs/remotes:/storj-base/.git/modules/<%= submodule %>/refs/remotes'
+      <%- end %>
+      - '../thorfiles:/storj-base/thorfiles'
+      - '../thorfiles/support/host.thor:/storj-base/Thorfile'
+    environment:
+      THOR_ENV: development

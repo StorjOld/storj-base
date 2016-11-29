@@ -1,3 +1,4 @@
+# Require all .rb files recursively from ./utils/
 Dir["#{__dir__}/utils/*{,*/*}.rb"].each {|file| require_relative file}
 
 module Utils

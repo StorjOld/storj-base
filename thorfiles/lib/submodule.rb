@@ -1,13 +1,18 @@
 class Submodule < ThorBase
   desc 'add <repo name> [git remote url]', 'Add a new git submodule'
 
-  method_option :branch, aliases: :b, type: :string
+  method_option :branch, aliases: :b, default: :master, type: :string
 
-  def add(repo_name, git_remote_url = 'https://github.com/Storj/%{repo_name}.git')
-    # update .gitmodules
-    append_dot_gitmodules
-    # *update .git/index
+  def add(repo_name, git_remote_url = 'https://github.com/Storj/%s.git')
+    # Interpolate url if applicable
+    git_remote_url %= repo_name
+    args = {
+        name: repo_name,
+        branch: options[:branch]
+    }
 
+    git_submodule_add git_remote_url, args
+    pre_build 'thor'
   end
 
   desc 'build <submodule name> [service name]', 'Builds docker image (and optionally dep images) for given submodule'
@@ -38,8 +43,8 @@ class Submodule < ThorBase
 
   # method_option :force, aliases: :f, default: false, type: :boolean
 
-  def update
-    deinit
+  def update_all
+    deinit_all
     submodules.each &method(:git_init_and_update)
   end
 
@@ -47,11 +52,9 @@ class Submodule < ThorBase
 
   method_option :force, aliases: :f, default: false, type: :boolean
 
-  def deinit
-    force = options[:force] ? '--force' : ''
-
+  def deinit_all
     submodules.each do |submodule|
-      run "git submodule deinit #{force} #{submodule}"
+      git_submodule_deinit submodule, force: options[:force]
     end
   end
 
