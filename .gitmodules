@@ -12,6 +12,7 @@
 	path = bridge-gui
 	url = https://github.com/Storj/bridge-gui
 [submodule "bridge"]
+  branch = billing-5
 	path = bridge
 	url = https://github.com/Storj/bridge
 [submodule "complex"]
