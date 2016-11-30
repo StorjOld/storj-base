@@ -19,5 +19,14 @@ if [ "$1" == "--update" ]; then
   ARGS="container thor docker:build thor"
 fi
 
-docker-compose -f ./dockerfiles/thor.yml run $ARGS
+if [ -f ./dockerfiles/thor.yml ]; then
+	docker-compose -f ./dockerfiles/thor.yml run $ARGS
+	exit 0
+elif [ -f ../dockerfiles/thor.yml ]; then
+	docker-compose -f ../dockerfiles/thor.yml run $ARGS
+	exit 0
+else
+  echo "Couldn't find thor.yml docker composition file at either ./dockerfiles/thor.yml or ../dockerfiles/thor.yml"
+  exit 1
+fi
 

@@ -78,8 +78,8 @@ class Submodule < ThorBase
 
   def up(submodule, service = '')
     @env = options[:env]
-    composition_yml = "#{WORKDIR}/submodule/dockerfiles/#{submodule}-#{@env}.yml"
-    docker_compose composition_yml, 'up', service: service
+    composition_yml_path = "#{WORKDIR}/#{submodule}/dockerfiles/#{submodule}-#{@env}.yml"
+    docker_compose :up, service, file: composition_yml_path
   end
 
   desc 'run <submodule name> <service name> [command]', 'Run a one-off command in the specified service for the given submodule\'s composition'

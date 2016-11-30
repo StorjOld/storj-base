@@ -16,14 +16,16 @@ services:
       # Mount docker.sock to allow connection to host docker daemon
       - '/var/run/docker.sock:/var/run/docker.sock'
 
+      # Ensure Gemfile is always up to date
+      - '../Gemfile:/storj-base/Gemfile'
+      - '../Gemfile.lock:/storj-base/Gemfile.lock'
+
       # Ensure thorfiles are awlays up to date
       - '../thorfiles:/storj-base/thorfiles'
 
-      # Ensure thorfiles are awlays up to date
-      - '../dockerfiles/:/storj-base/dockerfiles'
-
       # Mount `/storj-base/Thorfile` dynamically based on service
       - '../thorfiles/support/container.thor:/storj-base/Thorfile'
+      - '../dockerfiles/:/storj-base/dockerfiles'
     environment:
       THOR_ENV: development
 
@@ -41,18 +43,46 @@ services:
       - '../:/storj-base'
 
       #  --- Begin submodule remotes --- #
-      - '../thorfiles/.git/modules/billing/refs/remotes:/storj-base/.git/modules/billing/refs/remotes'
-      - '../thorfiles/.git/modules/bridge/refs/remotes:/storj-base/.git/modules/bridge/refs/remotes'
-      - '../thorfiles/.git/modules/bridge-gui/refs/remotes:/storj-base/.git/modules/bridge-gui/refs/remotes'
-      - '../thorfiles/.git/modules/complex/refs/remotes:/storj-base/.git/modules/complex/refs/remotes'
-      - '../thorfiles/.git/modules/core/refs/remotes:/storj-base/.git/modules/core/refs/remotes'
-      - '../thorfiles/.git/modules/mongodb-adapter/refs/remotes:/storj-base/.git/modules/mongodb-adapter/refs/remotes'
-      - '../thorfiles/.git/modules/service-error-types/refs/remotes:/storj-base/.git/modules/service-error-types/refs/remotes'
-      - '../thorfiles/.git/modules/service-middleware/refs/remotes:/storj-base/.git/modules/service-middleware/refs/remotes'
-      - '../thorfiles/.git/modules/service-storage-models/refs/remotes:/storj-base/.git/modules/service-storage-models/refs/remotes'
+      - '../thorfiles/support/git/modules/billing/refs/remotes:/storj-base/.git/modules/billing/refs/remotes'
+      - '../thorfiles/support/git/modules/bridge/refs/remotes:/storj-base/.git/modules/bridge/refs/remotes'
+      - '../thorfiles/support/git/modules/bridge-gui/refs/remotes:/storj-base/.git/modules/bridge-gui/refs/remotes'
+      - '../thorfiles/support/git/modules/complex/refs/remotes:/storj-base/.git/modules/complex/refs/remotes'
+      - '../thorfiles/support/git/modules/core/refs/remotes:/storj-base/.git/modules/core/refs/remotes'
+      - '../thorfiles/support/git/modules/mongodb-adapter/refs/remotes:/storj-base/.git/modules/mongodb-adapter/refs/remotes'
+      - '../thorfiles/support/git/modules/service-error-types/refs/remotes:/storj-base/.git/modules/service-error-types/refs/remotes'
+      - '../thorfiles/support/git/modules/service-middleware/refs/remotes:/storj-base/.git/modules/service-middleware/refs/remotes'
+      - '../thorfiles/support/git/modules/service-storage-models/refs/remotes:/storj-base/.git/modules/service-storage-models/refs/remotes'
       # --- End submodule remotes --- #
 
       # Mount `/storj-base/Thorfile` dynamically based on service
       - '../thorfiles/support/host.thor:/storj-base/Thorfile'
+    environment:
+      THOR_ENV: development
+
+  update:
+    image: storjlabs/thor:latest
+    build:
+      context: ../
+      dockerfile: ./dockerfiles/thor/thor-development.dockerfile
+    privileged: true
+    volumes:
+      # Mount docker.sock to allow connection to host docker daemon
+      - '/var/run/docker.sock:/var/run/docker.sock'
+
+      #  --- Begin submodule remotes --- #
+      - '../thorfiles/.git/modules/file/refs/remotes:/storj-base/.git/modules/file/refs/remotes'
+      - '../thorfiles/support/git/modules/billing/refs/remotes:/storj-base/.git/modules/billing/refs/remotes'
+      - '../thorfiles/support/git/modules/bridge/refs/remotes:/storj-base/.git/modules/bridge/refs/remotes'
+      - '../thorfiles/support/git/modules/bridge-gui/refs/remotes:/storj-base/.git/modules/bridge-gui/refs/remotes'
+      - '../thorfiles/support/git/modules/complex/refs/remotes:/storj-base/.git/modules/complex/refs/remotes'
+      - '../thorfiles/support/git/modules/core/refs/remotes:/storj-base/.git/modules/core/refs/remotes'
+      - '../thorfiles/support/git/modules/mongodb-adapter/refs/remotes:/storj-base/.git/modules/mongodb-adapter/refs/remotes'
+      - '../thorfiles/support/git/modules/service-error-types/refs/remotes:/storj-base/.git/modules/service-error-types/refs/remotes'
+      - '../thorfiles/support/git/modules/service-middleware/refs/remotes:/storj-base/.git/modules/service-middleware/refs/remotes'
+      - '../thorfiles/support/git/modules/service-storage-models/refs/remotes:/storj-base/.git/modules/service-storage-models/refs/remotes'
+      # --- End submodule remotes --- #
+
+      # Mount `/storj-base/Thorfile` dynamically based on service
+      - '../thorfiles/support/container.thor:/storj-base/Thorfile'
     environment:
       THOR_ENV: development

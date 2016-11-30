@@ -31,7 +31,7 @@ module Utils
       args_string = parse_docker_args args
 
       print "Service: #{service}\n"
-      if File.file? file
+      if file && File.file?(file)
         run "docker-compose -f #{file} #{command} #{args_string} #{service}"
       else
         print "Couldn't find docker composition file at #{file}\n"
