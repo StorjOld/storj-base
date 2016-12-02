@@ -1,0 +1,39 @@
+#! /usr/bin/env node
+'use strict';
+console.log('Starting up.')
+const program = require('commander');
+const shell = require('shelljs');
+
+program
+  .command('init')
+  .action(function() {
+    gitSubmoduleInit();
+    gitSubmoduleUpdate();
+    npmLinkSubmodules();
+  })
+
+program.parse(process.argv);
+
+function gitSubmoduleInit(submodule) {
+  submodule = submodule || '.';
+  shell.exec('git submodule init ' + submodule)
+}
+
+function gitSubmoduleUpdate() {
+  submodule = submodule || '.';
+  shell.exec('git submodule update --remote ' + submodule)
+}
+
+function npmLinkSubmodules() {
+  submodules().forEach(function(submodule) {
+    shell.exec('cd ' + submodule + ' && npm link')
+    shell.exec('npm link ' + submodule)
+  })
+}
+
+function submodules() {
+  return shell.exec('git submodule')
+    .stdout.split('\n').map(function(line) {
+      return line.match(/.\w+\s(\S+)/)[1];
+    })
+}

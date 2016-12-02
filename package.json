@@ -1,0 +1,15 @@
+{
+  "name": "storj-dev",
+  "version": "1.0.0",
+  "description": "Scripts and tools for Storj software product development.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^2.9.0",
+    "shelljs": "^0.7.5"
+  }
+}
