@@ -6,6 +6,10 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
+const error = console.error.bind(this);
+const log = console.log.bind(this);
+const info = console.info.bind(this);
+
 const shell = require('shelljs');
 const entryPwd = shell.pwd().stdout;
 
@@ -16,30 +20,43 @@ function init(currentDir) {
 
   // -- recurse
   submodules().forEach(function(submodule) {
-    init(path.join(currentDir, submodule))
+    gitSubmoduleInit(submodule);
+    gitSubmoduleUpdate(submodule);
+    init(submodule)
   });
 
-  npmLinkSubmodules(currentDir);
+  npmLinkSubmodules(path.join(pwd, currentDir));
   shell.cd(pwd);
 }
 
+function gitSubmoduleInit(submodule) {
+  submodule = submodule || '.';
+  shell.exec('git submodule init ' + submodule);
+}
+
+function gitSubmoduleUpdate(submodule) {
+  submodule = submodule || '.';
+  // TODO: swap these back
+  // shell.exec('git submodule update --remote ' + submodule);
+  shell.exec('git submodule update ' + submodule);
+}
 
 function npmLinkSubmodules(currentDir) {
   submodules().forEach(function(submodule) {
-    const submoduleDir = path.join(currentDir, submodule);
-
-    shell.exec('cd ' + submoduleDir + ' && yarn link && yarn install --ignore-engines');
+    shell.exec('cd ' + submodule + ' && yarn link');
+    // shell.exec('cd ' + submodule + ' && yarn install');
 
     try {
-      const module = JSON.parse(fs.readFileSync(path.join(submoduleDir, 'package.json')));
+      const module = JSON.parse(fs.readFileSync(path.join(currentDir, submodule, 'package.json')));
+      log('module name:', module.name);
 
       shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
 
       // TODO: Check if module is already linked
       // Error if it is and it's a different refspect or commit hash
     } catch (err) {
-      error(err.message);
-      error(err.stack);
+      // error(err.message);
+      // error(err.stack);
       throw new Error(err);
     }
   })
@@ -52,7 +69,7 @@ function submodules() {
       .stdout
       .split('\n')
       .map(function(line) {
-        if (/^\s*$/.test(line)) return;
+        if (/(^\s*$)|(storj-base)/.test(line)) return;
 
         return line.match(/.\w+\s(\S+)/)[1];
       })
