@@ -1,49 +1,66 @@
 #! /usr/bin/env node
+
 'use strict';
-console.log('Starting up.')
+
+const _ = require('lodash');
+const fs = require('fs');
+const path = require('path');
+
 const program = require('commander');
 const shell = require('shelljs');
-const entryPwd = shell.pwd().stdout
+const entryPwd = shell.pwd().stdout;
 
 program
   .command('init [path]')
   .action(init)
+;
 
 program.parse(process.argv);
 
-function init (path) {
-  const pwd = shell.pwd().stdout
-  path = path || '.'
-  shell.cd(path)
-  gitSubmoduleInit();
-  gitSubmoduleUpdate();
-  submodules().forEach(init)
-  npmLinkSubmodules();
-  shell.cd(pwd)
-}
+function init(currentDir) {
+  const pwd = shell.pwd().stdout;
+  currentDir = currentDir || '.';
+  shell.cd(currentDir);
 
-function gitSubmoduleInit(submodule) {
-  submodule = submodule || '.';
-  shell.exec('git submodule init ' + submodule)
-}
-
-function gitSubmoduleUpdate() {
-  submodule = submodule || '.';
-  shell.exec('git submodule update --remote ' + submodule)
-}
-
-function npmLinkSubmodules() {
+  // -- recurse
   submodules().forEach(function(submodule) {
-    shell.exec('cd ' + submodule + ' && npm link')
-    shell.exec('cd ' + entryPwd + ' && npm link ' + submodule);
-    // TODO: Check if module is already linked
-    // Error if it is and it's a different refspect or commit hash
+    init(path.join(currentDir, submodule))
+  });
+
+  npmLinkSubmodules(currentDir);
+  shell.cd(pwd);
+}
+
+
+function npmLinkSubmodules(currentDir) {
+  submodules().forEach(function(submodule) {
+    shell.exec('cd ' + submodule + ' && yarn link');
+
+    try {
+      const module = JSON.parse(fs.readFileSync(path.join(currentDir, 'package.json')));
+
+      shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
+
+      // TODO: Check if module is already linked
+      // Error if it is and it's a different refspect or commit hash
+    } catch (err) {
+      error(err.message);
+      error(err.stack);
+      throw new Error(err);
+    }
   })
 }
 
 function submodules() {
-  return shell.exec('git submodule')
-    .stdout.split('\n').map(function(line) {
-      return line.match(/.\w+\s(\S+)/)[1];
-    })
+  return _.compact(
+    shell
+      .exec('git submodule')
+      .stdout
+      .split('\n')
+      .map(function(line) {
+        if (/^\s*$/.test(line)) return;
+
+        return line.match(/.\w+\s(\S+)/)[1];
+      })
+  )
 }
