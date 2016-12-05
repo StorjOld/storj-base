@@ -6,16 +6,8 @@ const _ = require('lodash');
 const fs = require('fs');
 const path = require('path');
 
-const program = require('commander');
 const shell = require('shelljs');
 const entryPwd = shell.pwd().stdout;
-
-program
-  .command('init [path]')
-  .action(init)
-;
-
-program.parse(process.argv);
 
 function init(currentDir) {
   const pwd = shell.pwd().stdout;
@@ -34,10 +26,12 @@ function init(currentDir) {
 
 function npmLinkSubmodules(currentDir) {
   submodules().forEach(function(submodule) {
-    shell.exec('cd ' + submodule + ' && yarn link');
+    const submoduleDir = path.join(currentDir, submodule);
+
+    shell.exec('cd ' + submoduleDir + ' && yarn link && yarn install --ignore-engines');
 
     try {
-      const module = JSON.parse(fs.readFileSync(path.join(currentDir, 'package.json')));
+      const module = JSON.parse(fs.readFileSync(path.join(submoduleDir, 'package.json')));
 
       shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
 
@@ -64,3 +58,5 @@ function submodules() {
       })
   )
 }
+
+exports.init = init;
