@@ -36,21 +36,20 @@ function gitSubmoduleInit(submodule) {
 
 function gitSubmoduleUpdate(submodule) {
   submodule = submodule || '.';
-  // TODO: swap these back
-  // shell.exec('git submodule update --remote ' + submodule);
   shell.exec('git submodule update ' + submodule);
 }
 
 function npmLinkSubmodules(currentDir) {
   submodules().forEach(function(submodule) {
     shell.exec('cd ' + submodule + ' && yarn link');
-    // shell.exec('cd ' + submodule + ' && yarn install');
+    shell.exec('cd ' + submodule + ' && yarn install');
 
     try {
       const module = JSON.parse(fs.readFileSync(path.join(currentDir, submodule, 'package.json')));
       log('module name:', module.name);
 
-      shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
+      // shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
+      shell.exec('cd ' + currentDir + ' && yarn link ' + module.name);
 
       // TODO: Check if module is already linked
       // Error if it is and it's a different refspect or commit hash
