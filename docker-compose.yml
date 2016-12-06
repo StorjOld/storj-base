@@ -1,0 +1,11 @@
+version: '2'
+services:
+  build:
+    image: storjlabs/storj-base-build
+    build: .
+    volumes:
+      - ..:/root
+      - ~/.ssh/id_rsa:/root/ssh/id_rsa
+      - ~/.ssh/id_rsa.pub:/root/ssh/id_rsa.pub
+    working_dir: /root/
+    command: './start init'

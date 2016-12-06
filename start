@@ -41,18 +41,17 @@ function gitSubmoduleUpdate(submodule) {
 
 function npmLinkSubmodules(currentDir) {
   submodules().forEach(function(submodule) {
-    shell.exec('cd ' + submodule + ' && yarn link');
-    shell.exec('cd ' + submodule + ' && yarn install');
 
     try {
       const module = JSON.parse(fs.readFileSync(path.join(currentDir, submodule, 'package.json')));
-      log('module name:', module.name);
-
-      // shell.exec('cd ' + entryPwd + ' && yarn link ' + module.name);
-      shell.exec('cd ' + currentDir + ' && yarn link ' + module.name);
-
+      const source = path.join(currentDir, submodule)
+      const target = path.join(currentDir, 'node_modules', module.name)
+      // TODO: add confirmation prompt here before delete
+      shell.exec('rm -rf ' + target)
       // TODO: Check if module is already linked
       // Error if it is and it's a different refspect or commit hash
+      shell.exec('ln -s ' + source + ' ' + target)
+      shell.exec('cd ' + submodule + ' && yarn install --ignore-engines');
     } catch (err) {
       // error(err.message);
       // error(err.stack);
